@@ -78,30 +78,39 @@ as
     select 2, 2022, @FISCAL_YEAR, 'COMPLETED', @GRADE union
     select 3, 2022, @FISCAL_YEAR, 'STARTED', @GRADE
 
+    -- Add reviews
+    insert into review(user_id, review_month, review_year, fiscal_year, grade, review_type, review_section, element, component_id, review_status, total, ok)
+    select @USER_ID as user_id, m.review_month, m.review_year, m.fiscal_year, m.grade, 'CE' as review_type, 'TIMELINESS' as review_section, c.element_id as element, c.id, m.review_status, 25 as total, 10 as ok
+    from dbo.lead_component c
+    join dbo.lead_element_group eg on eg.element_id = c.element_id
+    join dbo.lead_element_group_component egc on egc.component_id = c.id and egc.group_id = eg.group_id
+    join dbo.review_evaluation re on re.user_id = @USER_ID and re.grade = @GRADE and re.fiscal_year = @FISCAL_YEAR
+    full outer join #months m
+    on m.fiscal_year = egc.fiscal_year
+    and m.grade = egc.grade
+    where c.element_id is not null and m.grade = @GRADE
+    UNION ALL
+    select distinct @USER_ID as user_id, m.review_month, m.review_year, m.fiscal_year, m.grade, 'CE' as review_type, 'QUALITY' as review_section, a.lead_element_id as element, null, m.review_status, 25 as total, 10 as ok
+    from lead_element a
+    join dbo.review_evaluation re on re.user_id = @USER_ID and re.grade = @GRADE and re.fiscal_year = @FISCAL_YEAR
+    cross join #months m
+    join dbo.review_period rp on rp.review_evaluation_id = re.id and rp.review_month = m.review_month and rp.review_year = m.review_year;
+
     -- Add review periods
     insert into dbo.review_period
     select review_month, review_year, @EVAL_ID
     from #months;
     select * from dbo.review_period;
 
-    -- Add reviews
-    insert into review(user_id, review_month, review_year, fiscal_year, grade, review_type, review_section, element, component_id, review_status, review_period_id, total, ok)
-    select @USER_ID as user_id, m.review_month, m.review_year, m.fiscal_year, m.grade, 'CE' as review_type, 'TIMELINESS' as review_section, c.element_id as element, c.id, m.review_status, rp.id, 25 as total, 10 as ok
-    from dbo.lead_component c
-    join dbo.lead_element_group eg on eg.element_id = c.element_id
-    join dbo.lead_element_group_component egc on egc.component_id = c.id and egc.group_id = eg.group_id
-    join dbo.review_evaluation re on re.user_id = @USER_ID and re.grade = @GRADE and re.fiscal_year = @FISCAL_YEAR
-    join dbo.review_period rp on rp.review_evaluation_id = re.id
-    full outer join #months m
-    on m.fiscal_year = egc.fiscal_year
-    and m.grade = egc.grade
-    where c.element_id is not null and m.grade = @GRADE
-    UNION ALL
-    select distinct @USER_ID as user_id, m.review_month, m.review_year, m.fiscal_year, m.grade, 'CE' as review_type, 'QUALITY' as review_section, a.lead_element_id as element, null, m.review_status, re.id, 25 as total, 10 as ok
-    from lead_element a
-    join dbo.review_evaluation re on re.user_id = @USER_ID and re.grade = @GRADE and re.fiscal_year = @FISCAL_YEAR
-    join dbo.review_period rp on rp.review_evaluation_id = re.id
-    cross join #months m
+    update r
+    set r.review_period_id = rp.id
+    from dbo.[review] r
+    join dbo.[review_evaluation] re on re.id = @EVAL_ID
+    join dbo.[review_period] rp 
+        on rp.review_evaluation_id = re.id 
+        and rp.review_month = r.review_month 
+        and rp.review_year = r.review_year
+    where r.user_id = @USER_ID and re.grade = @GRADE and re.fiscal_year = @FISCAL_YEAR;
 
     drop table #months
 
