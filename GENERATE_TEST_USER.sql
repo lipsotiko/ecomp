@@ -128,13 +128,12 @@ as
 
 go
 
-exec generateTestUser @USERNAME = 'jwick', @FIRSTNAME = 'John', @LASTNAME = 'Wick', @GRADE = 9, @FISCAL_YEAR = 2022, @PARTY_ID = 999;
 exec generateTestUser @USERNAME = 'jwick12', @FIRSTNAME = 'John12', @LASTNAME = 'Wick', @GRADE = 12, @FISCAL_YEAR = 2022, @PARTY_ID = 999;
 exec generateTestUser @USERNAME = 'jwick7', @FIRSTNAME = 'John7', @LASTNAME = 'Wick', @GRADE = 7, @FISCAL_YEAR = 2022, @PARTY_ID = 999;
 exec generateTestUser @USERNAME = 'bwayne', @FIRSTNAME = 'Bruce', @LASTNAME = 'Wayne', @GRADE = 7, @FISCAL_YEAR = 2022, @PARTY_ID = 888;
 exec generateTestUser @USERNAME = 'nromanov', @FIRSTNAME = 'Natasha', @LASTNAME = 'Romanov', @GRADE = 7, @FISCAL_YEAR = 2022, @PARTY_ID = 333;
 exec generateTestUser @USERNAME = 'tanderson', @FIRSTNAME = 'Thomas', @LASTNAME = 'Anderson', @GRADE = 12, @FISCAL_YEAR = 2022, @PARTY_ID = 777;
-exec generateTestUser @USERNAME = 'nportman', @FIRSTNAME = 'Natalie', @LASTNAME = 'Portman', @GRADE = 7, @FISCAL_YEAR = 2022, @PARTY_ID = 111;
+exec generateTestUser @USERNAME = 'nportman', @FIRSTNAME = 'Natalie', @LASTNAME = 'Portman', @GRADE = 9, @FISCAL_YEAR = 2022, @PARTY_ID = 111;
 
 go
 
