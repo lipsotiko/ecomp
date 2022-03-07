@@ -36,7 +36,8 @@ create procedure generateTestUser
     @FIRSTNAME VARCHAR(255),
     @LASTNAME VARCHAR(255),
     @GRADE INTEGER,
-    @FISCAL_YEAR INTEGER
+    @FISCAL_YEAR INTEGER,
+    @PARTY_ID INTEGER
 as
 
     exec deleteCeData @USERNAME, @GRADE, @FISCAL_YEAR
@@ -46,7 +47,7 @@ as
     declare @USER_ID INT = (select top 1 user_id from [user] where [user_name] = @USERNAME);
     declare @ROLE_ID INT = (select top 1 role_id from [role] where [description] = 'Claims Examiner');
     insert into user_role (role_id, user_id) values (@ROLE_ID, @USER_ID);
-    insert into claims_examiner(user_id, party_id) values (@USER_ID, 999);
+    insert into claims_examiner(user_id, party_id) values (@USER_ID, @PARTY_ID);
 
     declare  @SUPERVISOR_USER_ID INTEGER;
     select @SUPERVISOR_USER_ID = user_id from [user] where user_name in ('ecomp+cesuper@intevity.com');
@@ -104,7 +105,7 @@ as
 
     drop table #months
 
-    -- Add review summaries
+    -- Add reivew summaries
     insert into review_summary(user_id, quality_status, review_month, fiscal_year, grade, review_type, review_period_id, updated_by, updated_date)
     select distinct user_id, review_status, review_month, fiscal_year, grade, review_type, review_period_id, @SUPERVISOR_USER_ID, CURRENT_TIMESTAMP
     from review 
@@ -127,8 +128,13 @@ as
 
 go
 
-exec generateTestUser @USERNAME = 'jwick7', @FIRSTNAME = 'John7', @LASTNAME = 'Wick', @GRADE = 7, @FISCAL_YEAR = 2022;
-exec generateTestUser @USERNAME = 'jwick12', @FIRSTNAME = 'John12', @LASTNAME = 'Wick', @GRADE = 12, @FISCAL_YEAR = 2022;
+exec generateTestUser @USERNAME = 'jwick', @FIRSTNAME = 'John', @LASTNAME = 'Wick', @GRADE = 9, @FISCAL_YEAR = 2022, @PARTY_ID = 999;
+exec generateTestUser @USERNAME = 'jwick12', @FIRSTNAME = 'John12', @LASTNAME = 'Wick', @GRADE = 12, @FISCAL_YEAR = 2022, @PARTY_ID = 999;
+exec generateTestUser @USERNAME = 'jwick7', @FIRSTNAME = 'John7', @LASTNAME = 'Wick', @GRADE = 7, @FISCAL_YEAR = 2022, @PARTY_ID = 999;
+exec generateTestUser @USERNAME = 'bwayne', @FIRSTNAME = 'Bruce', @LASTNAME = 'Wayne', @GRADE = 7, @FISCAL_YEAR = 2022, @PARTY_ID = 888;
+exec generateTestUser @USERNAME = 'nromanov', @FIRSTNAME = 'Natasha', @LASTNAME = 'Romanov', @GRADE = 7, @FISCAL_YEAR = 2022, @PARTY_ID = 333;
+exec generateTestUser @USERNAME = 'tanderson', @FIRSTNAME = 'Thomas', @LASTNAME = 'Anderson', @GRADE = 12, @FISCAL_YEAR = 2022, @PARTY_ID = 777;
+exec generateTestUser @USERNAME = 'nportman', @FIRSTNAME = 'Natalie', @LASTNAME = 'Portman', @GRADE = 7, @FISCAL_YEAR = 2022, @PARTY_ID = 111;
 
 go
 
