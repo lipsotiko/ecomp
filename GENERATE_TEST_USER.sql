@@ -79,8 +79,8 @@ as
     select 3, 2022, @FISCAL_YEAR, 'STARTED', @GRADE
 
     -- Add reviews
-    insert into review(user_id, review_month, review_year, fiscal_year, grade, review_type, review_section, element, component_id, review_status, review_period_id, total, ok)
-    select @USER_ID as user_id, m.review_month, m.review_year, m.fiscal_year, m.grade, 'CE' as review_type, 'TIMELINESS' as review_section, c.element_id as element, c.id, m.review_status, NULL, 25 as total, 10 as ok
+    insert into review(user_id, review_month, review_year, fiscal_year, grade, review_type, review_section, element, component_id, review_status, total, ok)
+    select @USER_ID as user_id, m.review_month, m.review_year, m.fiscal_year, m.grade, 'CE' as review_type, 'TIMELINESS' as review_section, c.element_id as element, c.id, m.review_status, 25 as total, 10 as ok
     from dbo.lead_component c
     join dbo.lead_element_group eg on eg.element_id = c.element_id
     join dbo.lead_element_group_component egc on egc.component_id = c.id and egc.group_id = eg.group_id
@@ -90,7 +90,7 @@ as
     and m.grade = egc.grade
     where c.element_id is not null and m.grade = @GRADE
     UNION ALL
-    select distinct @USER_ID as user_id, m.review_month, m.review_year, m.fiscal_year, m.grade, 'CE' as review_type, 'QUALITY' as review_section, a.lead_element_id as element, null, m.review_status, re.id, 25 as total, 10 as ok
+    select distinct @USER_ID as user_id, m.review_month, m.review_year, m.fiscal_year, m.grade, 'CE' as review_type, 'QUALITY' as review_section, a.lead_element_id as element, null, m.review_status, 25 as total, 10 as ok
     from lead_element a
     join dbo.review_evaluation re on re.user_id = @USER_ID and re.grade = @GRADE and re.fiscal_year = @FISCAL_YEAR
     cross join #months m
