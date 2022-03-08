@@ -93,14 +93,12 @@ as
     select distinct @USER_ID as user_id, m.review_month, m.review_year, m.fiscal_year, m.grade, 'CE' as review_type, 'QUALITY' as review_section, a.lead_element_id as element, null, m.review_status, 25 as total, 10 as ok
     from lead_element a
     join dbo.review_evaluation re on re.user_id = @USER_ID and re.grade = @GRADE and re.fiscal_year = @FISCAL_YEAR
-    cross join #months m
-    join dbo.review_period rp on rp.review_evaluation_id = re.id and rp.review_month = m.review_month and rp.review_year = m.review_year;
+    cross join #months m;
 
     -- Add review periods
     insert into dbo.review_period
     select review_month, review_year, @EVAL_ID
     from #months;
-    select * from dbo.review_period;
 
     update r
     set r.review_period_id = rp.id
@@ -114,7 +112,7 @@ as
 
     drop table #months
 
-    -- Add reivew summaries
+    -- Add review summaries
     insert into review_summary(user_id, quality_status, review_month, fiscal_year, grade, review_type, review_period_id, updated_by, updated_date)
     select distinct user_id, review_status, review_month, fiscal_year, grade, review_type, review_period_id, @SUPERVISOR_USER_ID, CURRENT_TIMESTAMP
     from review 
