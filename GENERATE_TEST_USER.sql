@@ -12,6 +12,7 @@ AS
     delete from review_case_exclusion where review_id in (select review_id from review where review_period_id in (select id from review_period where review_evaluation_id in (select id from review_evaluation where user_id = @USER_ID)))
     delete from review where review_period_id in (select id from review_period where review_evaluation_id in (select id from review_evaluation where user_id = @USER_ID))
     delete from review_summary where review_period_id in (select id from review_period where review_evaluation_id in (select id from review_evaluation where user_id = @USER_ID))
+    delete from review_period_reopen where review_period_id in (select id from review_period where review_evaluation_id in (select id from review_evaluation where user_id = @USER_ID))
     delete from review_period where review_evaluation_id in (select id from review_evaluation where user_id = @USER_ID)
     delete from review_evaluation where user_id = @USER_ID
 
