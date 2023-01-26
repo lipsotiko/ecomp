@@ -1,5 +1,5 @@
-declare @case_id int = (select case_id from ifecs_case where case_number = '550215922')
-declare @created_by int = (select user_id from [user] where user_name = 'raividol+stg2@gmail.com' and application_id = 0 )
+declare @case_id int = (select case_id from ifecs_case where case_number = 'XE0123844')
+declare @created_by int = (select user_id from [user] where user_name = 'ecomp+cesuper@intevity.com' and application_id = 0 )
 declare @created_at datetime = DATEADD(day, -10, CURRENT_TIMESTAMP)
 
 delete eism
