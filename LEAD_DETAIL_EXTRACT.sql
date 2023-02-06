@@ -1,4 +1,4 @@
-DECLARE @ELEMENT_ID VARCHAR(255) = 'ADJ'
+DECLARE @ELEMENT_ID VARCHAR(255) = 'QCM'
 DECLARE @FISCAL_YEAR INT = 2023
 
 begin try drop table #tmp_review end try begin catch end catch
@@ -83,9 +83,6 @@ FETCH NEXT FROM db_cursor INTO @REVIEW_ID, @DETAILS_JSON
 
 WHILE @@FETCH_STATUS = 0  
 BEGIN
-    print(@REVIEW_ID)
-    print(@DETAILS_JSON)
-
     if (@DETAILS_JSON IS NOT NULL)
     begin
         begin try drop table #tmp_JSON end try begin catch end catch
