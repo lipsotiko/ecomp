@@ -1,4 +1,4 @@
-DECLARE @ELEMENT_ID VARCHAR(255) = 'QCM'
+DECLARE @ELEMENT_ID VARCHAR(255) = 'ADJ'
 DECLARE @FISCAL_YEAR INT = 2023
 
 begin try drop table #tmp_review end try begin catch end catch
@@ -9,7 +9,7 @@ inner join lead_element le
 on r.element_id = le.id
 inner join review_period rp
 on r.review_period_id = rp.id
-where review_section = 'QUALITY' and rp.review_month in (10, 11, 12) and rp.review_year = 2022 and le.lead_element_id = @ELEMENT_ID
+where review_section = 'QUALITY' and le.lead_element_id = @ELEMENT_ID --and rp.review_month in (12) and rp.review_year = 2022 and 
 
 begin try drop table #tmp_results end try begin catch end catch
 select r.review_id
@@ -71,6 +71,7 @@ END
 CLOSE db_cursor  
 DEALLOCATE db_cursor
 
+ALTER TABLE #tmp_results ADD comments VARCHAR(MAX)
 
 DECLARE @REVIEW_ID INT
 DECLARE @DETAILS_JSON VARCHAR(MAX)
@@ -109,11 +110,17 @@ BEGIN
         ) as comments
         on questionNumber.parent_ID = comments.parent_ID
 
-        declare @SQL varchar(MAX)
-        set @SQL = ''
-        select @SQL =  @SQL + 'update #tmp_results set Q_' + CAST(question_number as VARCHAR) + ' = ''' + response + ''' where review_id = ' + cast(@REVIEW_ID as VARCHAR(255))
+        declare @SQL varchar(MAX) = ''
+        select @SQL =  @SQL + 'update #tmp_results set Q_' + CAST(question_number as VARCHAR) + ' = ''' + response + ''' where review_id = ' + cast(@REVIEW_ID as VARCHAR(255)) + '; '
         from #tmp_questions_and_answers
         exec(@SQL)
+
+        declare @comments varchar(MAX) = ''
+        select @comments += 'Q_' + CAST(question_number as VARCHAR) + ': '+ comments + '; '
+        from #tmp_questions_and_answers 
+        where comments is not null
+
+        update #tmp_results set comments = @comments where review_id = @REVIEW_ID
     end
 
     FETCH NEXT FROM db_cursor INTO @REVIEW_ID, @DETAILS_JSON
