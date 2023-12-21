@@ -198,7 +198,7 @@ select 'SA sent for cert','SA sent for cert within 175 days',0,175,NULL,@STANDAR
 declare @TIMELINESS_GROUPS table (lead_element_id varchar(255), standards_group varchar(255), [weighting] int, eg_sort_order int, component varchar(255), sort_order int)
 
 insert into @TIMELINESS_GROUPS(lead_element_id, standards_group, [weighting], eg_sort_order, component, sort_order)
-select *
+select lead_element_id, standards_group, weighting, eg_sort_order, component, sort_order
 from (
     -- distinct group ID was not needed, but keeping it for reference.
     select 'ADJ' as lead_element_id,'ADJ Group 1' as standards_group,70 as [weighting],1 as [eg_sort_order],'Traumatic/Reopened Interim' as component,1 as sort_order,1 as distinct_group_id UNION ALL
@@ -253,6 +253,114 @@ inner join lead_component lc
 on g.component = lc.component
 where sg.review_standards_id = @STANDARDS_ID and lc.review_standards_id = @STANDARDS_ID
 
+declare @tmp_months table ([review_month] int, [review_year] [int]);
+insert into @tmp_months (review_month)
+values (10),
+        (11),
+        (12),
+        (1),
+        (2),
+        (3),
+        (4),
+        (5),
+        (6),
+        (7),
+        (8),
+        (9)
+
+DECLARE @ADJ_ELEMENT_ID INT;
+SELECT TOP 1 @ADJ_ELEMENT_ID = id FROM lead_element
+WHERE review_standards_id = @STANDARDS_ID AND lead_element_id = 'ADJ'
+
+declare @tmp_adj_types table ([case_type] varchar(255), [priority_order] int)
+insert into @tmp_adj_types
+values('Traumatic Acceptance', 1),
+        ('Traumatic Denial', 2),
+        ('Reopened Acceptance', 3),
+        ('Reopened Denial', 4),
+        ('Basic OD Acceptance', 5),
+        ('Basic OD Denial', 6),
+        ('Extended OD Acceptance', 7),
+        ('Extended OD Denial', 8),
+        ('Recurrence Decision', 9),
+        ('Remand Decision', 10)
+
+DECLARE @COM_ELEMENT_ID INT;
+SELECT TOP 1 @COM_ELEMENT_ID = id FROM lead_element
+WHERE review_standards_id = @STANDARDS_ID AND lead_element_id = 'COM'
+
+declare @tmp_com_types table ([case_type] varchar(255), [priority_order] int)
+insert into @tmp_com_types
+values ('Correspondence', 1),
+        ('Phone Call', 2),
+        ('Escalation', 3),
+        ('Medical Authorization', 4),
+        ('Other', 5)
+
+DECLARE @QCM_ELEMENT_ID INT;
+SELECT TOP 1 @QCM_ELEMENT_ID = id FROM lead_element
+WHERE review_standards_id = @STANDARDS_ID AND lead_element_id = 'QCM'
+
+declare @tmp_qcm_types table ([case_type] varchar(255), [priority_order] int)
+insert into @tmp_qcm_types
+values ('Cat A', 1),
+        ('Cat B', 2),
+        ('CE Intervention', 3),
+        ('Closure/Reduction', 4),
+        ('Medical Intervention', 5),
+        ('Nurse Intervention', 6),
+        ('Rehab Intervention', 7),
+        ('Return to Work', 8)
+
+DECLARE @PRM_ELEMENT_ID INT;
+SELECT TOP 1 @PRM_ELEMENT_ID = id FROM lead_element
+WHERE review_standards_id = @STANDARDS_ID AND lead_element_id = 'PRM'
+
+declare @tmp_prm_types table ([case_type] varchar(255), [priority_order] int)
+insert into @tmp_prm_types
+values ('Pending Tier 1', 1),
+        ('Pending Tier 2', 2),
+        ('Pending Tier 3', 3),
+        ('Closed PER', 4)
+
+DECLARE @PAY_ELEMENT_ID INT;
+SELECT TOP 1 @PAY_ELEMENT_ID = id FROM lead_element
+WHERE review_standards_id = @STANDARDS_ID AND lead_element_id = 'PAY'
+
+declare @tmp_pay_types table ([case_type] varchar(255), [priority_order] int)
+insert into @tmp_pay_types
+values ('Disability', 1),
+        ('WEC', 2),
+        ('SA', 3),
+        ('Self Certified', 4),
+        ('All Other', 5)
+
+insert into review_case_type_priority (review_month, case_type, element_id, priority_order)
+select review_month, case_type, element_id, priority_order
+from @tmp_months m
+full outer join (select case_type, @ADJ_ELEMENT_ID as element_id, priority_order from @tmp_adj_types) adj
+on 1 = 1
+union all
+select review_month, case_type, element_id, priority_order
+from @tmp_months m
+full outer join (select case_type, @COM_ELEMENT_ID as element_id, priority_order from @tmp_com_types) com
+on 1 = 1
+union all
+select review_month, case_type, element_id, priority_order
+from @tmp_months m
+full outer join (select case_type, @QCM_ELEMENT_ID as element_id, priority_order from @tmp_qcm_types) qcm
+on 1 = 1
+union all
+select review_month, case_type, element_id, priority_order
+from @tmp_months m
+full outer join (select case_type, @PRM_ELEMENT_ID as element_id, priority_order from @tmp_prm_types) prm
+on 1 = 1
+union all
+select review_month, case_type, element_id, priority_order
+from @tmp_months m
+full outer join (select case_type, @PAY_ELEMENT_ID as element_id, priority_order from @tmp_pay_types) pay
+on 1 = 1
+
 select * from review_standards where id = @STANDARDS_ID
 select * from lead_element where review_standards_id = @STANDARDS_ID
 select * from lead_question where element_id in (select id from lead_element where review_standards_id = @STANDARDS_ID)
@@ -261,3 +369,4 @@ select * from lead_standards_group where review_standards_id = @STANDARDS_ID
 select * from lead_standards_group_grade where standards_group_id in (select id from lead_standards_group where review_standards_id = @STANDARDS_ID)
 select * from lead_element_group where standards_group_id in (select id from lead_standards_group where review_standards_id = @STANDARDS_ID)
 select * from lead_element_group_component where review_standards_id = @STANDARDS_ID
+select * from review_case_type_priority where element_id in (select id from lead_element where review_standards_id = @STANDARDS_ID)

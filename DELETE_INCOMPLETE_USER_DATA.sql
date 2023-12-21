@@ -59,36 +59,7 @@ and opa.fiscal_year = e.fiscal_year
 where opa.review_period_id is null and e.review_period_id is not null
 order by ce_email
 
-
--- select cg.grade, cg.fiscal_year, lc.component, lc.id, le.lead_element_id, r.review_status
--- from lead_element_group_component cg
--- inner join lead_component lc
--- on cg.component_id = lc.id
--- inner join lead_element le
--- on lc.element_id = le.id
--- left join (
---     select r.*, re.grade, re.fiscal_year
---     from review r
---     inner join lead_component lc
---     on r.component_id = lc.id
---     inner join lead_element le
---     on lc.element_id = le.id
---     inner join review_period rp
---     on r.review_period_id = rp.id
---     inner join review_evaluation re
---     on rp.review_evaluation_id = re.id
---     where review_period_id = 661 
---     and review_section = 'TIMELINESS'
--- ) r
--- on r.grade = cg.grade
--- and r.fiscal_year = cg.fiscal_year
--- and cg.component_id = r.component_id
--- where cg.fiscal_year = 2023
--- and cg.grade = 11
--- and le.lead_element_id = 'ADJ'
-
 select * from #tmp_issues
-
 
 DECLARE @REVIEW_PERIOD_ID INT
 DECLARE @ELEMENT_ID VARCHAR(255)

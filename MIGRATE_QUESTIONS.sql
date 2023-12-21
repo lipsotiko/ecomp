@@ -151,4 +151,3 @@ END
 
 CLOSE element_cursor
 DEALLOCATE element_cursor
-

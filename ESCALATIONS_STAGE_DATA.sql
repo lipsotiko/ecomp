@@ -66,8 +66,6 @@ from @tmp_metadata a
 full outer join @tmp_section_ids b
 on 1=1
 
-
-
 insert into escalation(created_at, created_by, escalation_inquiry_id)
 select DATEADD(day, -5, CURRENT_TIMESTAMP), @created_by, (select top 1 id from escalation_inquiry where case_id = @case_id and [type] = 'DISABILITY_PAYMENT_FOR_WORK_LOSS')
 

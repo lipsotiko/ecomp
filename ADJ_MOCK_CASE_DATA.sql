@@ -26,5 +26,4 @@ insert into ifecs_case (case_id, case_number, last_name, first_name, agency_cd, 
 select case_id, 'Z' + SUBSTRING(CAST(case_id as char(9)), 2, 8), 'John ' + t.Component, 'Doe ' + t.actionType, 2570, '00'
 from #tmp t
 
-
 select * from ifecs_case where case_id between 100000000 and 110000000
